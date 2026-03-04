@@ -126,7 +126,7 @@
   .btn-secondary { background: transparent; border: 1px solid var(--border-bright); color: var(--text-mid); }
   .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
 
-  /* DEBUG BANNER
+  /* DEBUG BANNER */
   #debug-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 900; background: #0a0e1a; border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 24px; font-family: 'DM Mono', monospace; font-size: 0.7rem; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
   #debug-banner .db-label { color: #4b5563; letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
   #debug-banner .db-title { color: #6b7280; letter-spacing: 0.08em; margin-right: 16px; font-size: 0.65rem; text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 16px; }
@@ -143,7 +143,7 @@
   .db-text.warn { color: #fde68a; }
   .db-dismiss { margin-left: auto; color: #4b5563; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; transition: color 0.2s; border: 1px solid rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 2px; }
   .db-dismiss:hover { color: #9ca3af; }
-  .db-error-detail { font-size: 0.6rem; color: #f87171; opacity: 0.7; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } */
+  .db-error-detail { font-size: 0.6rem; color: #f87171; opacity: 0.7; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; }
@@ -363,34 +363,34 @@ function toSettingsMap(rows) {
   return map;
 }
 
-// ── DEBUG BANNER ─────────────────────────────────────────────────
-// function dbSet(sheet, status, detail) {
-  // status: 'ok' | 'err' | 'warn'
-//  const dot  = document.getElementById(`dot-${sheet}`);
-//  const txt  = document.getElementById(`txt-${sheet}`);
-//  const labels = { settings:"Settings", events:"Events", writing:"Writing" };
-//  const msgs = {
-//    ok:   `${labels[sheet]}: loaded`,
-//    err:  `${labels[sheet]}: failed`,
-//    warn: `${labels[sheet]}: not configured`,
-//  };
-//  if (dot) { dot.className = `db-dot ${status}`; }
-//  if (txt) {
-//    txt.className = `db-text ${status}`;
-//    txt.innerHTML = `<span class="db-label">${labels[sheet]}</span>${msgs[status]}`;
-//    if (detail) txt.innerHTML += ` <span class="db-error-detail" title="${detail}">— ${detail}</span>`;
-//  }
-//}
+ ── DEBUG BANNER ─────────────────────────────────────────────────
+ function dbSet(sheet, status, detail) {
+ status: 'ok' | 'err' | 'warn'
+  const dot  = document.getElementById(`dot-${sheet}`);
+  const txt  = document.getElementById(`txt-${sheet}`);
+  const labels = { settings:"Settings", events:"Events", writing:"Writing" };
+  const msgs = {
+    ok:   `${labels[sheet]}: loaded`,
+    err:  `${labels[sheet]}: failed`,
+    warn: `${labels[sheet]}: not configured`,
+  };
+  if (dot) { dot.className = `db-dot ${status}`; }
+  if (txt) {
+    txt.className = `db-text ${status}`;
+    txt.innerHTML = `<span class="db-label">${labels[sheet]}</span>${msgs[status]}`;
+    if (detail) txt.innerHTML += ` <span class="db-error-detail" title="${detail}">— ${detail}</span>`;
+  }
+}
 
-//function dbSetSource(usingFallback) {
-//  const el = document.getElementById("db-source");
-//  if (!el) return;
-//  if (usingFallback) {
-//    el.innerHTML = `<div class="db-dot warn"></div><span class="db-text warn">Showing fallback content</span>`;
-//  } else {
-//    el.innerHTML = `<div class="db-dot ok"></div><span class="db-text ok">Live from Google Sheets</span>`;
-//  }
-//}
+function dbSetSource(usingFallback) {
+  const el = document.getElementById("db-source");
+  if (!el) return;
+  if (usingFallback) {
+    el.innerHTML = `<div class="db-dot warn"></div><span class="db-text warn">Showing fallback content</span>`;
+  } else {
+    el.innerHTML = `<div class="db-dot ok"></div><span class="db-text ok">Live from Google Sheets</span>`;
+  }
+}
 
 // ── FETCH ────────────────────────────────────────────────────────
 async function loadData() {
