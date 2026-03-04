@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient — The Williams AI Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10; --bg2: #0d1117; --bg3: #131920;
+    --border: rgba(255,255,255,0.07); --border-bright: rgba(255,255,255,0.15);
+    --text: #e8eaf0; --text-dim: #6b7280; --text-mid: #9ca3af;
+    --g1: #a78bfa; --g2: #60a5fa; --g3: #34d399; --accent: #a78bfa;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+  /* LOADING */
+  #loading-screen { position: fixed; inset: 0; background: var(--bg); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s; }
+  #loading-screen.hidden { opacity: 0; pointer-events: none; }
+  .loading-logo { font-family: 'DM Serif Display', serif; font-size: 2rem; background: linear-gradient(90deg, var(--g1), var(--g2), var(--g3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200%; animation: gradientShift 2s ease infinite; }
+  .loading-bar { width: 120px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
+  .loading-bar::after { content: ''; position: absolute; left: -100%; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, transparent, var(--g1), var(--g2)); animation: loadingSlide 1.2s ease infinite; }
+  @keyframes loadingSlide { to { left: 100%; } }
+  .loading-note { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; background: rgba(8,11,16,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; background: linear-gradient(90deg, var(--g1), var(--g2), var(--g3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: transparent !important; border: 1px solid var(--border-bright) !important; color: var(--text) !important; padding: 8px 20px; border-radius: 4px; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 48px 80px; position: relative; }
+  .hero-glow { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse, rgba(167,139,250,0.12) 0%, rgba(96,165,250,0.06) 40%, transparent 70%); pointer-events: none; }
+  .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 28px; animation: fadeUp 0.8s ease both; }
+  .hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(4rem, 9vw, 8rem); line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 12px; background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 30%, #93c5fd 60%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradientShift 6s ease infinite, fadeUp 0.8s 0.1s ease both; }
+  @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .hero-subtitle-line { font-family: 'DM Serif Display', serif; font-size: clamp(1rem, 2vw, 1.4rem); color: var(--text-dim); font-style: italic; margin-bottom: 40px; animation: fadeUp 0.8s 0.2s ease both; }
+  .hero-desc { max-width: 520px; color: var(--text-mid); font-size: 1rem; line-height: 1.8; margin-bottom: 56px; animation: fadeUp 0.8s 0.3s ease both; }
+  .hero-branches { display: flex; gap: 16px; animation: fadeUp 0.8s 0.4s ease both; }
+  .branch-card { border: 1px solid var(--border); padding: 24px 32px; border-radius: 8px; text-align: left; text-decoration: none; color: var(--text); background: rgba(255,255,255,0.02); transition: border-color 0.3s, background 0.3s, transform 0.3s; min-width: 220px; position: relative; overflow: hidden; }
+  .branch-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; }
+  .branch-card.explore::before { background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(96,165,250,0.05)); }
+  .branch-card.build::before { background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(96,165,250,0.05)); }
+  .branch-card:hover { transform: translateY(-3px); border-color: var(--border-bright); }
+  .branch-card:hover::before { opacity: 1; }
+  .branch-tag { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; display: block; }
+  .branch-card.explore .branch-tag { color: var(--g1); }
+  .branch-card.build .branch-tag { color: var(--g3); }
+  .branch-title { font-size: 1.05rem; font-weight: 500; margin-bottom: 6px; }
+  .branch-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; }
+  .hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-dim); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; animation: fadeUp 1s 0.8s ease both; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--text-dim), transparent); animation: scrollPulse 2s ease infinite; }
+  @keyframes scrollPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTIONS */
+  section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+  .section-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 48px; display: flex; align-items: center; gap: 16px; }
+  .section-label::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--border); }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 24px; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 60px; }
+  .about-panel { padding: 52px 48px; background: var(--bg2); position: relative; overflow: hidden; }
+  .about-panel:first-child { border-radius: 8px 0 0 8px; }
+  .about-panel:last-child { border-radius: 0 8px 8px 0; }
+  .about-panel::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .about-panel.track-1::after { background: linear-gradient(90deg, var(--g1), var(--g2)); }
+  .about-panel.track-2::after { background: linear-gradient(90deg, var(--g2), var(--g3)); }
+  .panel-number { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-dim); margin-bottom: 24px; }
+  .panel-title { font-family: 'DM Serif Display', serif; font-size: 1.8rem; letter-spacing: -0.02em; margin-bottom: 20px; }
+  .panel-body { color: var(--text-mid); font-size: 0.92rem; line-height: 1.8; margin-bottom: 32px; }
+  .panel-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .panel-features li { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 12px; }
+  .panel-features li::before { content: '→'; color: var(--accent); font-size: 0.8rem; }
+  .track-2 .panel-features li::before { color: var(--g3); }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 80px; }
+  .stat-cell { background: var(--bg2); padding: 36px 32px; text-align: center; }
+  .stat-number { font-family: 'DM Serif Display', serif; font-size: 2.8rem; letter-spacing: -0.03em; background: linear-gradient(135deg, var(--g1), var(--g2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; margin-bottom: 8px; }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+
+  /* EVENTS */
+  .events-section { border-top: 1px solid var(--border); }
+  .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 60px; }
+  .event-card { background: var(--bg2); padding: 36px 32px; transition: background 0.2s; }
+  .event-card:hover { background: var(--bg3); }
+  .event-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
+  .event-track-badge { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; margin-bottom: 16px; }
+  .badge-explore { background: rgba(167,139,250,0.12); color: var(--g1); }
+  .badge-build   { background: rgba(52,211,153,0.1);  color: var(--g3); }
+  .badge-both    { background: rgba(96,165,250,0.1);  color: var(--g2); }
+  .event-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 12px; }
+  .event-body { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+  .event-footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .event-location { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+  .event-rsvp { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); text-decoration: none; transition: color 0.2s; }
+  .event-rsvp:hover { color: var(--g2); }
+  .empty-state { grid-column: 1/-1; padding: 60px; text-align: center; background: var(--bg2); font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
+
+  /* WRITING */
+  .writing-section { border-top: 1px solid var(--border); }
+  .writing-list { margin-top: 60px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .writing-item { display: grid; grid-template-columns: 120px 1fr auto; gap: 32px; align-items: baseline; padding: 28px 36px; background: var(--bg2); border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); transition: background 0.2s; }
+  .writing-item:last-child { border-bottom: none; }
+  .writing-item:hover { background: var(--bg3); }
+  .writing-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--text-dim); }
+  .writing-title { font-family: 'DM Serif Display', serif; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .writing-author { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); white-space: nowrap; }
+
+  /* JOIN */
+  .join-section { border-top: 1px solid var(--border); text-align: center; position: relative; overflow: hidden; }
+  .join-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(167,139,250,0.08) 0%, transparent 70%); pointer-events: none; }
+  .join-section .section-title { font-size: clamp(2.5rem, 5vw, 4.5rem); }
+  .join-desc { max-width: 440px; margin: 0 auto 48px; color: var(--text-mid); font-size: 0.95rem; }
+  .join-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn { padding: 14px 32px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: transparent; border: 1px solid var(--border-bright); color: var(--text-mid); }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+
+  /* DEBUG BANNER */
+  #debug-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 900; background: #0a0e1a; border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 24px; font-family: 'DM Mono', monospace; font-size: 0.7rem; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  #debug-banner .db-label { color: #4b5563; letter-spacing: 0.1em; text-transform: uppercase; margin-right: 4px; }
+  #debug-banner .db-title { color: #6b7280; letter-spacing: 0.08em; margin-right: 16px; font-size: 0.65rem; text-transform: uppercase; border-right: 1px solid rgba(255,255,255,0.08); padding-right: 16px; }
+  .db-chip { display: flex; align-items: center; gap: 6px; }
+  .db-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .db-dot.ok      { background: #34d399; box-shadow: 0 0 6px #34d399; }
+  .db-dot.err     { background: #f87171; box-shadow: 0 0 6px #f87171; }
+  .db-dot.warn    { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+  .db-dot.pending { background: #6b7280; animation: dbPulse 1s ease infinite; }
+  @keyframes dbPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+  .db-text { color: #9ca3af; }
+  .db-text.ok   { color: #6ee7b7; }
+  .db-text.err  { color: #fca5a5; }
+  .db-text.warn { color: #fde68a; }
+  .db-dismiss { margin-left: auto; color: #4b5563; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; transition: color 0.2s; border: 1px solid rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 2px; }
+  .db-dismiss:hover { color: #9ca3af; }
+  .db-error-detail { font-size: 0.6rem; color: #f87171; opacity: 0.7; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 1rem; background: linear-gradient(90deg, var(--g1), var(--g2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .footer-links { display: flex; gap: 28px; list-style: none; }
+  .footer-links a { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-logo">Gradient</div>
+  <div class="loading-bar"></div>
+  <div class="loading-note">Loading content</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" id="nav-logo">Gradient</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#join" class="nav-cta">Join</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <p class="hero-eyebrow" id="hero-eyebrow">Williams College · Founded 2025</p>
+  <h1 class="hero-title" id="hero-title">Gradient</h1>
+  <p class="hero-subtitle-line" id="hero-subtitle">The Williams AI Club</p>
+  <p class="hero-desc" id="hero-desc"></p>
+  <div class="hero-branches">
+    <a href="#about" class="branch-card explore">
+      <span class="branch-tag" id="track1-tag"></span>
+      <div class="branch-title" id="track1-title"></div>
+      <div class="branch-desc" id="track1-card-desc"></div>
+    </a>
+    <a href="#about" class="branch-card build">
+      <span class="branch-tag" id="track2-tag"></span>
+      <div class="branch-title" id="track2-title"></div>
+      <div class="branch-desc" id="track2-card-desc"></div>
+    </a>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div>Scroll</div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">About Gradient</div>
+  <h2 class="section-title">Two tracks.<br>One community.</h2>
+  <p id="about-intro" style="max-width:600px;color:var(--text-mid);font-size:0.95rem;line-height:1.85;"></p>
+  <div class="about-grid">
+    <div class="about-panel track-1">
+      <div class="panel-number">01 / Explore</div>
+      <h3 class="panel-title" id="t1-panel-title"></h3>
+      <p class="panel-body" id="t1-body"></p>
+      <ul class="panel-features" id="t1-bullets"></ul>
+    </div>
+    <div class="about-panel track-2">
+      <div class="panel-number">02 / Build</div>
+      <h3 class="panel-title" id="t2-panel-title"></h3>
+      <p class="panel-body" id="t2-body"></p>
+      <ul class="panel-features" id="t2-bullets"></ul>
+    </div>
+  </div>
+  <div class="stat-row" id="stat-row"></div>
+</section>
+
+<!-- EVENTS -->
+<section id="events" class="events-section">
+  <div class="section-label">Upcoming Events</div>
+  <h2 class="section-title">What's coming up.</h2>
+  <div class="events-grid" id="events-grid"></div>
+</section>
+
+<!-- WRITING -->
+<section id="writing" class="writing-section">
+  <div class="section-label">Archive · Writing</div>
+  <h2 class="section-title">From the club.</h2>
+  <p style="max-width:500px;color:var(--text-mid);font-size:0.92rem;line-height:1.8;">Essays, analyses, and notes from Gradient members. A record of what we've been thinking about.</p>
+  <div class="writing-list" id="writing-list"></div>
+</section>
+
+<!-- JOIN -->
+<section id="join" class="join-section">
+  <div class="join-glow"></div>
+  <div class="section-label" style="justify-content:center;">Get Involved</div>
+  <h2 class="section-title" id="join-title"></h2>
+  <p class="join-desc" id="join-desc"></p>
+  <div class="join-buttons">
+    <a href="#" class="btn btn-primary" id="btn-primary">Join the Mailing List</a>
+    <a href="#events" class="btn btn-secondary" id="btn-secondary">See All Events</a>
+  </div>
+</section>
+
+<!-- DEBUG BANNER -->
+<div id="debug-banner">
+  <span class="db-title">⚙ Sheet Status</span>
+  <div class="db-chip"><div class="db-dot pending" id="dot-settings"></div><span class="db-text" id="txt-settings"><span class="db-label">Settings</span>checking…</span></div>
+  <div class="db-chip"><div class="db-dot pending" id="dot-events"></div><span class="db-text" id="txt-events"><span class="db-label">Events</span>checking…</span></div>
+  <div class="db-chip"><div class="db-dot pending" id="dot-writing"></div><span class="db-text" id="txt-writing"><span class="db-label">Writing</span>checking…</span></div>
+  <div id="db-source" class="db-chip" style="border-left:1px solid rgba(255,255,255,0.08);padding-left:16px;"></div>
+  <span class="db-dismiss" onclick="document.getElementById('debug-banner').remove()">Dismiss</span>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" id="footer-logo">Gradient</div>
+  <ul class="footer-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#" id="footer-contact">Contact</a></li>
+  </ul>
+  <div class="footer-copy" id="footer-copy"></div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SETUP — paste your three Google Sheets CSV URLs here.
+//
+//  How to get them (takes ~2 minutes):
+//    1. Open your Google Sheet
+//    2. File → Share → Publish to web
+//    3. In the dropdown, select a tab (Settings / Events / Writing)
+//    4. Choose "Comma-separated values (.csv)"
+//    5. Click Publish, copy the URL
+//    6. Repeat for each tab
+//    7. Paste the three URLs below
+// ══════════════════════════════════════════════════════════════
+const SHEET_URLS = {
+  settings: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQykWIvkwmub9qCM58rS1fsqCWLLLRgKJ267BGtQM2Z3WOOue3tddFc1uyI1ILvseSzUF4w8dosZijQ/pub?gid=1354036862&single=true&output=csv",
+  events:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQykWIvkwmub9qCM58rS1fsqCWLLLRgKJ267BGtQM2Z3WOOue3tddFc1uyI1ILvseSzUF4w8dosZijQ/pub?gid=400487632&single=true&output=csv",
+  writing:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQykWIvkwmub9qCM58rS1fsqCWLLLRgKJ267BGtQM2Z3WOOue3tddFc1uyI1ILvseSzUF4w8dosZijQ/pub?gid=1752704784&single=true&output=csv",
+};
+
+// ── FALLBACK (shown if sheet unreachable or not yet configured) ─
+const FALLBACK = {
+  settings: {
+    club_name:"Gradient", club_subtitle:"The Williams AI Club",
+    college:"Williams College", founded_year:"2025",
+    contact_email:"gradient@williams.edu",
+    hero_description:"A community for everyone thinking seriously about artificial intelligence — whether you want to understand its implications or build with it.",
+    about_intro:"Williams is uniquely positioned to think about AI across disciplines — economics, philosophy, biology, political science, art. Gradient is structured to reflect that reality: everyone is welcome, and everyone has a place.",
+    track1_tag:"Track 01 · Explore", track1_title:"AI & Society",
+    track1_card_desc:"Events, discussions, and ideas for the curious — no CS background required.",
+    track1_panel_title:"AI & Society",
+    track1_body:"For anyone interested in what AI means — for labor, for democracy, for creative work, for the environment, for who we are. No code required. Just curiosity.",
+    track1_bullet1:"Weekly discussions and reading groups",
+    track1_bullet2:"Speaker series with practitioners and researchers",
+    track1_bullet3:"Cross-disciplinary events with other clubs",
+    track1_bullet4:"Writing and analysis published on our blog",
+    track2_tag:"Track 02 · Build", track2_title:"AI & Engineering",
+    track2_card_desc:"Projects, models, collaborators, and connections with faculty and alumni.",
+    track2_panel_title:"AI & Engineering",
+    track2_body:"For students who want to work with models, contribute to projects, find collaborators, and plug into a network of faculty, alumni, and peers at other universities.",
+    track2_bullet1:"Access to API credits and compute resources",
+    track2_bullet2:"Active project board — find teammates or start your own",
+    track2_bullet3:"Office hours with Williams CS and statistics faculty",
+    track2_bullet4:"Network with students at MIT, Columbia, and beyond",
+    stat1_number:"2",   stat1_label:"Tracks",
+    stat2_number:"12+", stat2_label:"Events planned",
+    stat3_number:"4",   stat3_label:"Active projects",
+    stat4_number:"∞",  stat4_label:"Disciplines welcome",
+    join_title:"Find your gradient.",
+    join_description:"Whether you're writing philosophy papers or training transformers, there's a place for you here. Join the mailing list or come to our next event.",
+    join_button_primary:"Join the Mailing List", join_button_primary_url:"#",
+    join_button_secondary:"See All Events",
+  },
+  events: [
+    {date:"Mar 14, 2026 · 7:00 PM", title:"The Politics of the Chip: AI & Geopolitics",    track:"explore", description:"Panel discussion on how semiconductor supply chains, export controls, and national AI strategies are reshaping global power.", location:"Paresky 112", rsvp_link:"#"},
+    {date:"Mar 21, 2026 · 4:00 PM", title:"Project Kickoff: NLP for Archival Research",     track:"build",   description:"Building a tool to surface patterns in Williams College's historical archives using modern language models.",              location:"TCL 123 (CS Lab)", rsvp_link:"#"},
+    {date:"Apr 4, 2026 · 6:30 PM",  title:"Gradient Salon No. 1",                           track:"both",    description:"Our first cross-track gathering. Bring something you've been thinking about — a paper, a project, a question.",           location:"Log, Baxter Hall", rsvp_link:"#"},
+  ],
+  writing: [
+    {date:"Mar 2026", title:"On Evaluating AI Safety Benchmarks — And Why They Keep Failing",                  author:"T. Okafor",             link:"#"},
+    {date:"Feb 2026", title:"Notes from Our First Reading Group: Attention Is All You Need, Nine Years Later",  author:"M. Hernandez",          link:"#"},
+    {date:"Feb 2026", title:"What Do Economists Actually Think About AI and Labor?",                            author:"A. Chen",               link:"#"},
+    {date:"Jan 2026", title:"Building a Campus Event Recommender with Llama 3: A Retrospective",               author:"J. Park & S. Williams", link:"#"},
+    {date:"Jan 2026", title:"The Case for Interdisciplinary AI Education at Liberal Arts Colleges",             author:"Gradient Editors",      link:"#"},
+  ]
+};
+
+// ── CSV PARSER ───────────────────────────────────────────────────
+function parseCSVRow(line) {
+  const result = []; let cur = ""; let inQ = false;
+  for (const c of line) {
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ""; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return [];
+  const headers = parseCSVRow(lines[0]).map(h => h.trim().toLowerCase().replace(/\s+/g,"_"));
+  return lines.slice(1).map(line => {
+    const vals = parseCSVRow(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] || "").trim(); });
+    return obj;
+  }).filter(row => Object.values(row).some(v => v));
+}
+
+function toSettingsMap(rows) {
+  const map = {};
+  rows.forEach(r => { if (r.key) map[r.key.trim()] = r.value || ""; });
+  return map;
+}
+
+// ── DEBUG BANNER ─────────────────────────────────────────────────
+function dbSet(sheet, status, detail) {
+  // status: 'ok' | 'err' | 'warn'
+  const dot  = document.getElementById(`dot-${sheet}`);
+  const txt  = document.getElementById(`txt-${sheet}`);
+  const labels = { settings:"Settings", events:"Events", writing:"Writing" };
+  const msgs = {
+    ok:   `${labels[sheet]}: loaded`,
+    err:  `${labels[sheet]}: failed`,
+    warn: `${labels[sheet]}: not configured`,
+  };
+  if (dot) { dot.className = `db-dot ${status}`; }
+  if (txt) {
+    txt.className = `db-text ${status}`;
+    txt.innerHTML = `<span class="db-label">${labels[sheet]}</span>${msgs[status]}`;
+    if (detail) txt.innerHTML += ` <span class="db-error-detail" title="${detail}">— ${detail}</span>`;
+  }
+}
+
+function dbSetSource(usingFallback) {
+  const el = document.getElementById("db-source");
+  if (!el) return;
+  if (usingFallback) {
+    el.innerHTML = `<div class="db-dot warn"></div><span class="db-text warn">Showing fallback content</span>`;
+  } else {
+    el.innerHTML = `<div class="db-dot ok"></div><span class="db-text ok">Live from Google Sheets</span>`;
+  }
+}
+
+// ── FETCH ────────────────────────────────────────────────────────
+async function loadData() {
+  const configured = {
+    settings: !SHEET_URLS.settings.startsWith("PASTE"),
+    events:   !SHEET_URLS.events.startsWith("PASTE"),
+    writing:  !SHEET_URLS.writing.startsWith("PASTE"),
+  };
+
+  // If none configured, show warning immediately and return fallback
+  if (!configured.settings && !configured.events && !configured.writing) {
+    ["settings","events","writing"].forEach(s => dbSet(s, "warn", "URL not set"));
+    dbSetSource(true);
+    return FALLBACK;
+  }
+
+  // Fetch each sheet individually so we can report per-sheet status
+  async function fetchSheet(key, parser) {
+    if (!configured[key]) { dbSet(key, "warn", "URL not set"); return null; }
+    try {
+      const res = await fetch(SHEET_URLS[key]);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const parsed = parser(text);
+      if (!parsed || (Array.isArray(parsed) && parsed.length === 0) || Object.keys(parsed).length === 0) {
+        dbSet(key, "warn", "empty or unreadable");
+        return null;
+      }
+      dbSet(key, "ok");
+      return parsed;
+    } catch(e) {
+      const msg = e.message || String(e);
+      dbSet(key, "err", msg);
+      console.warn(`Sheet '${key}' failed:`, e);
+      return null;
+    }
+  }
+
+  const [rawSettings, rawEvents, rawWriting] = await Promise.all([
+    fetchSheet("settings", t => toSettingsMap(parseCSV(t))),
+    fetchSheet("events",   t => parseCSV(t)),
+    fetchSheet("writing",  t => parseCSV(t)),
+  ]);
+
+  const anyFailed = !rawSettings || !rawEvents || !rawWriting;
+  dbSetSource(anyFailed);
+
+  return {
+    settings: rawSettings || FALLBACK.settings,
+    events:   rawEvents   || FALLBACK.events,
+    writing:  rawWriting  || FALLBACK.writing,
+  };
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function setText(id, val) { const el = document.getElementById(id); if (el && val != null) el.textContent = val; }
+function g(key, data) { return data.settings[key] || ""; }
+
+function renderPage(data) {
+  const S = data.settings;
+
+  // Meta
+  document.title = `${g("club_name",data)} — ${g("club_subtitle",data)}`;
+
+  // Nav + hero
+  setText("nav-logo",       g("club_name",data));
+  setText("footer-logo",    g("club_name",data));
+  setText("hero-title",     g("club_name",data));
+  setText("hero-subtitle",  g("club_subtitle",data));
+  setText("hero-eyebrow",   `${g("college",data)} · Founded ${g("founded_year",data)}`);
+  setText("hero-desc",      g("hero_description",data));
+  setText("about-intro",    g("about_intro",data));
+
+  // Track cards
+  ["1","2"].forEach(n => {
+    setText(`track${n}-tag`,       g(`track${n}_tag`,data));
+    setText(`track${n}-title`,     g(`track${n}_title`,data));
+    setText(`track${n}-card-desc`, g(`track${n}_card_desc`,data));
+    setText(`t${n}-panel-title`,   g(`track${n}_panel_title`,data));
+    setText(`t${n}-body`,          g(`track${n}_body`,data));
+    const ul = document.getElementById(`t${n}-bullets`);
+    if (ul) [1,2,3,4].forEach(b => {
+      const v = g(`track${n}_bullet${b}`,data);
+      if (v) { const li = document.createElement("li"); li.textContent = v; ul.appendChild(li); }
+    });
+  });
+
+  // Stats
+  const sr = document.getElementById("stat-row");
+  if (sr) [1,2,3,4].forEach(n => {
+    const num = g(`stat${n}_number`,data), lbl = g(`stat${n}_label`,data);
+    if (num || lbl) sr.innerHTML += `<div class="stat-cell"><span class="stat-number">${num}</span><span class="stat-label">${lbl}</span></div>`;
+  });
+
+  // Events
+  const eg = document.getElementById("events-grid");
+  if (eg) {
+    if (!data.events.length) {
+      eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
+    } else {
+      const trackMeta = { explore:["badge-explore","Explore"], build:["badge-build","Build"], both:["badge-both","All Members"] };
+      eg.innerHTML = data.events.map(ev => {
+        const [cls, label] = trackMeta[ev.track] || trackMeta.both;
+        const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
+          ? `<a href="${ev.rsvp_link}" class="event-rsvp" target="_blank">RSVP →</a>`
+          : `<span class="event-rsvp" style="opacity:0.35">TBA</span>`;
+        return `<div class="event-card">
+          <div class="event-date">${ev.date}</div>
+          <span class="event-track-badge ${cls}">${label}</span>
+          <h3 class="event-title">${ev.title}</h3>
+          <p class="event-body">${ev.description}</p>
+          <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvp}</div>
+        </div>`;
+      }).join("");
+    }
+  }
+
+  // Writing
+  const wl = document.getElementById("writing-list");
+  if (wl) {
+    if (!data.writing.length) {
+      wl.innerHTML = `<div style="padding:40px;text-align:center;background:var(--bg2);font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text-dim);">No posts yet — coming soon.</div>`;
+    } else {
+      wl.innerHTML = data.writing.map(w => {
+        const href = w.link && w.link !== "#" ? w.link : "#";
+        return `<a href="${href}" class="writing-item" ${href!="#"?'target="_blank"':""}>
+          <span class="writing-date">${w.date}</span>
+          <span class="writing-title">${w.title}</span>
+          <span class="writing-author">${w.author}</span>
+        </a>`;
+      }).join("");
+    }
+  }
+
+  // Join
+  setText("join-title", g("join_title",data));
+  setText("join-desc",  g("join_description",data));
+  const bp = document.getElementById("btn-primary");
+  if (bp) { bp.textContent = g("join_button_primary",data)||"Join"; bp.href = g("join_button_primary_url",data)||"#"; }
+  const bs = document.getElementById("btn-secondary");
+  if (bs) bs.textContent = g("join_button_secondary",data)||"See All Events";
+
+  // Footer
+  const yr = g("founded_year",data);
+  setText("footer-copy", `${g("college",data)} · ${yr}–${String(parseInt(yr)+1).slice(2)}`);
+  const fc = document.getElementById("footer-contact");
+  if (fc) fc.href = `mailto:${g("contact_email",data)}`;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+(async () => {
+  const data = await loadData();
+  renderPage(data);
+  const ls = document.getElementById("loading-screen");
+  if (ls) { ls.classList.add("hidden"); setTimeout(() => ls.remove(), 600); }
+})();
+</script>
+</body>
+</html>
