@@ -364,33 +364,33 @@ function toSettingsMap(rows) {
 }
 
 // ── DEBUG BANNER ─────────────────────────────────────────────────
-function dbSet(sheet, status, detail) {
+// function dbSet(sheet, status, detail) {
   // status: 'ok' | 'err' | 'warn'
-  const dot  = document.getElementById(`dot-${sheet}`);
-  const txt  = document.getElementById(`txt-${sheet}`);
-  const labels = { settings:"Settings", events:"Events", writing:"Writing" };
-  const msgs = {
-    ok:   `${labels[sheet]}: loaded`,
-    err:  `${labels[sheet]}: failed`,
-    warn: `${labels[sheet]}: not configured`,
-  };
-  if (dot) { dot.className = `db-dot ${status}`; }
-  if (txt) {
-    txt.className = `db-text ${status}`;
-    txt.innerHTML = `<span class="db-label">${labels[sheet]}</span>${msgs[status]}`;
-    if (detail) txt.innerHTML += ` <span class="db-error-detail" title="${detail}">— ${detail}</span>`;
-  }
-}
+//  const dot  = document.getElementById(`dot-${sheet}`);
+//  const txt  = document.getElementById(`txt-${sheet}`);
+//  const labels = { settings:"Settings", events:"Events", writing:"Writing" };
+//  const msgs = {
+//    ok:   `${labels[sheet]}: loaded`,
+//    err:  `${labels[sheet]}: failed`,
+//    warn: `${labels[sheet]}: not configured`,
+//  };
+//  if (dot) { dot.className = `db-dot ${status}`; }
+//  if (txt) {
+//    txt.className = `db-text ${status}`;
+//    txt.innerHTML = `<span class="db-label">${labels[sheet]}</span>${msgs[status]}`;
+//    if (detail) txt.innerHTML += ` <span class="db-error-detail" title="${detail}">— ${detail}</span>`;
+//  }
+//}
 
-function dbSetSource(usingFallback) {
-  const el = document.getElementById("db-source");
-  if (!el) return;
-  if (usingFallback) {
-    el.innerHTML = `<div class="db-dot warn"></div><span class="db-text warn">Showing fallback content</span>`;
-  } else {
-    el.innerHTML = `<div class="db-dot ok"></div><span class="db-text ok">Live from Google Sheets</span>`;
-  }
-}
+//function dbSetSource(usingFallback) {
+//  const el = document.getElementById("db-source");
+//  if (!el) return;
+//  if (usingFallback) {
+//    el.innerHTML = `<div class="db-dot warn"></div><span class="db-text warn">Showing fallback content</span>`;
+//  } else {
+//    el.innerHTML = `<div class="db-dot ok"></div><span class="db-text ok">Live from Google Sheets</span>`;
+//  }
+//}
 
 // ── FETCH ────────────────────────────────────────────────────────
 async function loadData() {
