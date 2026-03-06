@@ -73,6 +73,12 @@
   .event-rsvp:hover { color: var(--g2); }
   .empty-state { grid-column: 1/-1; padding: 80px 60px; text-align: center; background: var(--bg2); font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); line-height: 2; }
   .empty-state p { margin-bottom: 24px; }
+  .events-section-heading { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; display: flex; align-items: center; gap: 16px; }
+  .events-section-heading::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--border); }
+  .events-section-group { margin-bottom: 56px; }
+  .events-section-group:last-child { margin-bottom: 0; }
+  .past-grid .event-card { opacity: 0.65; }
+  .past-grid .event-card:hover { opacity: 1; }
 
   /* PROPOSE BANNER */
   .propose-banner { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
@@ -140,7 +146,7 @@
 
 <!-- EVENTS GRID -->
 <div class="events-container">
-  <div class="events-grid" id="events-grid"></div>
+  <div id="events-sections"></div>
 </div>
 
 <!-- PROPOSE BANNER -->
@@ -180,9 +186,9 @@ const FALLBACK = {
     propose_event_url:"index.html",
   },
   events: [
-    {date:"Mar 14, 2026 · 7:00 PM", title:"The Politics of the Chip: AI & Geopolitics",    track:"explore", description:"Panel discussion on how semiconductor supply chains, export controls, and national AI strategies are reshaping global power.", location:"Paresky 112", rsvp_link:"#"},
-    {date:"Mar 21, 2026 · 4:00 PM", title:"Project Kickoff: NLP for Archival Research",     track:"build",   description:"Building a tool to surface patterns in Williams College's historical archives using modern language models.",              location:"TCL 123 (CS Lab)", rsvp_link:"#"},
-    {date:"Apr 4, 2026 · 6:30 PM",  title:"Gradient Salon No. 1",                           track:"both",    description:"Our first cross-track gathering. Bring something you've been thinking about — a paper, a project, a question.",           location:"Log, Baxter Hall", rsvp_link:"#"},
+    {date:"Mar 14, 2026", time:"7:00 PM", title:"The Politics of the Chip: AI & Geopolitics",    track:"explore", description:"Panel discussion on how semiconductor supply chains, export controls, and national AI strategies are reshaping global power.", location:"Paresky 112", rsvp_link:"#"},
+    {date:"Mar 21, 2026", time:"4:00 PM", title:"Project Kickoff: NLP for Archival Research",     track:"build",   description:"Building a tool to surface patterns in Williams College's historical archives using modern language models.",              location:"TCL 123 (CS Lab)", rsvp_link:"#"},
+    {date:"Apr 4, 2026",  time:"6:30 PM", title:"Gradient Salon No. 1",                           track:"both",    description:"Our first cross-track gathering. Bring something you've been thinking about — a paper, a project, a question.",           location:"Log, Baxter Hall", rsvp_link:"#"},
   ],
 };
 
@@ -261,12 +267,12 @@ function renderPage(data) {
     if (el) el.href = proposeUrl;
   });
 
-  // Events grid
-  const eg = document.getElementById("events-grid");
-  if (!eg) return;
+  // Events
+  const container = document.getElementById("events-sections");
+  if (!container) return;
 
   if (!data.events.length) {
-    eg.innerHTML = `<div class="empty-state"><p>No events yet — check back soon.</p></div>`;
+    container.innerHTML = `<div class="events-grid"><div class="empty-state"><p>No events yet — check back soon.</p></div></div>`;
     return;
   }
 
@@ -276,19 +282,46 @@ function renderPage(data) {
     both:    ["badge-both",    "All Members"],
   };
 
-  eg.innerHTML = data.events.map((ev, i) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  function cardHtml(ev, i, showRsvp) {
     const [cls, label] = trackMeta[ev.track] || trackMeta.both;
-    const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
-      ? `<a href="${ev.rsvp_link}" class="event-rsvp" target="_blank">RSVP →</a>`
-      : `<span class="event-rsvp" style="opacity:0.35">TBA</span>`;
+    const displayDate = (ev.time || "").trim()
+      ? `${(ev.date || "").trim()} · ${(ev.time || "").trim()}`
+      : (ev.date || "").trim();
+    const rsvpHtml = showRsvp
+      ? (ev.rsvp_link && ev.rsvp_link !== "#"
+          ? `<a href="${ev.rsvp_link}" class="event-rsvp" target="_blank">RSVP →</a>`
+          : `<span class="event-rsvp" style="opacity:0.35">TBA</span>`)
+      : "";
     return `<div class="event-card" data-track="${ev.track || 'both'}" style="animation:fadeUp 0.5s ${i * 0.05}s ease both;">
-      <div class="event-date">${ev.date}</div>
+      <div class="event-date">${displayDate}</div>
       <span class="event-track-badge ${cls}">${label}</span>
       <h3 class="event-title">${ev.title}</h3>
       <p class="event-body">${ev.description}</p>
-      <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvp}</div>
+      <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvpHtml}</div>
     </div>`;
-  }).join("");
+  }
+
+  const withDates = data.events.map(ev => ({ ...ev, _ts: new Date(ev.date) }));
+  const upcoming = withDates.filter(ev => ev._ts >= today).sort((a, b) => a._ts - b._ts);
+  const past     = withDates.filter(ev => ev._ts <  today).sort((a, b) => b._ts - a._ts);
+
+  let html = "";
+  if (upcoming.length) {
+    html += `<div class="events-section-group">
+      <div class="events-section-heading">Upcoming</div>
+      <div class="events-grid">${upcoming.map((ev, i) => cardHtml(ev, i, true)).join("")}</div>
+    </div>`;
+  }
+  if (past.length) {
+    html += `<div class="events-section-group">
+      <div class="events-section-heading">Past</div>
+      <div class="events-grid past-grid">${past.map((ev, i) => cardHtml(ev, i, false)).join("")}</div>
+    </div>`;
+  }
+  container.innerHTML = html;
 }
 
 // ── FILTERS ─────────────────────────────────────────────────────
@@ -303,17 +336,22 @@ function initFilters() {
         const show = filter === "all" || track === filter || (filter === "both" && track === "both");
         card.classList.toggle("hidden", !show);
       });
-      // Show empty message if nothing visible
-      const eg = document.getElementById("events-grid");
-      const visible = eg ? [...eg.querySelectorAll(".event-card:not(.hidden)")].length : 0;
-      const existing = eg ? eg.querySelector(".filter-empty") : null;
+      // Hide section groups that have no visible cards; restore if they do
+      document.querySelectorAll(".events-section-group").forEach(group => {
+        const visible = [...group.querySelectorAll(".event-card:not(.hidden)")].length;
+        group.style.display = visible === 0 ? "none" : "";
+      });
+      // Show a message if everything is hidden
+      const container = document.getElementById("events-sections");
+      const existing = container ? container.querySelector(".filter-empty") : null;
       if (existing) existing.remove();
-      if (visible === 0 && eg) {
+      const totalVisible = [...document.querySelectorAll(".event-card:not(.hidden)")].length;
+      if (totalVisible === 0 && container) {
         const msg = document.createElement("div");
-        msg.className = "empty-state filter-empty";
-        msg.style.gridColumn = "1/-1";
-        msg.innerHTML = `<p>No events for this filter yet.</p>`;
-        eg.appendChild(msg);
+        msg.className = "filter-empty";
+        msg.style.cssText = "padding:60px;text-align:center;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text-dim);";
+        msg.textContent = "No events for this filter yet.";
+        container.appendChild(msg);
       }
     });
   });
