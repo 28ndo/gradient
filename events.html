@@ -177,6 +177,7 @@ const FALLBACK = {
   settings: {
     club_name:"Gradient", college:"Williams College", founded_year:"2025",
     contact_email:"gradient@williams.edu",
+    propose_event_url:"https://forms.gle/osn4YjZ5hfsVRK1W7",
   },
   events: [
     {date:"Mar 14, 2026 · 7:00 PM", title:"The Politics of the Chip: AI & Geopolitics",    track:"explore", description:"Panel discussion on how semiconductor supply chains, export controls, and national AI strategies are reshaping global power.", location:"Paresky 112", rsvp_link:"#"},
@@ -252,6 +253,13 @@ function renderPage(data) {
   if (fcopy) fcopy.textContent = `${S.college || "Williams College"} · ${yr}–${String(parseInt(yr)+1).slice(2)}`;
   const fc = document.getElementById("footer-contact");
   if (fc && S.contact_email) fc.href = `mailto:${S.contact_email}`;
+
+  // Propose event buttons
+  const proposeUrl = S.propose_event_url || "#";
+  ["propose-btn-header", "propose-btn-banner"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.href = proposeUrl;
+  });
 
   // Events grid
   const eg = document.getElementById("events-grid");
