@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — Gradient</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10; --bg2: #0d1117; --bg3: #131920;
+    --border: rgba(255,255,255,0.07); --border-bright: rgba(255,255,255,0.15);
+    --text: #e8eaf0; --text-dim: #6b7280; --text-mid: #9ca3af;
+    --g1: #a78bfa; --g2: #60a5fa; --g3: #34d399; --accent: #a78bfa;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+  /* LOADING */
+  #loading-screen { position: fixed; inset: 0; background: var(--bg); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s; }
+  #loading-screen.hidden { opacity: 0; pointer-events: none; }
+  .loading-logo { font-family: 'DM Serif Display', serif; font-size: 2rem; background: linear-gradient(90deg, var(--g1), var(--g2), var(--g3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200%; animation: gradientShift 2s ease infinite; }
+  .loading-bar { width: 120px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
+  .loading-bar::after { content: ''; position: absolute; left: -100%; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, transparent, var(--g1), var(--g2)); animation: loadingSlide 1.2s ease infinite; }
+  @keyframes loadingSlide { to { left: 100%; } }
+  .loading-note { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; background: rgba(8,11,16,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'DM Serif Display', serif; font-size: 1.2rem; background: linear-gradient(90deg, var(--g1), var(--g2), var(--g3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+  .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  .nav-cta { background: transparent !important; border: 1px solid var(--border-bright) !important; color: var(--text) !important; padding: 8px 20px; border-radius: 4px; }
+
+  /* PAGE HEADER */
+  .page-header { padding: 160px 48px 80px; max-width: 1200px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; flex-wrap: wrap; }
+  .page-header-left { flex: 1; min-width: 280px; }
+  .page-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; }
+  .page-title { font-family: 'DM Serif Display', serif; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 0.95; letter-spacing: -0.03em; background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 30%, #93c5fd 60%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradientShift 6s ease infinite; margin-bottom: 20px; }
+  .page-desc { color: var(--text-mid); font-size: 0.95rem; line-height: 1.8; max-width: 460px; }
+  @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+  /* PROPOSE BUTTON */
+  .propose-btn { flex-shrink: 0; display: inline-flex; align-items: center; gap: 12px; padding: 16px 28px; background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(96,165,250,0.1)); border: 1px solid rgba(167,139,250,0.35); border-radius: 6px; color: var(--text); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.25s; }
+  .propose-btn:hover { background: linear-gradient(135deg, rgba(167,139,250,0.25), rgba(96,165,250,0.18)); border-color: rgba(167,139,250,0.6); transform: translateY(-2px); }
+  .propose-icon { font-size: 1rem; line-height: 1; }
+
+  /* FILTERS */
+  .filters-bar { max-width: 1200px; margin: 0 auto; padding: 0 48px 48px; display: flex; align-items: center; gap: 12px; }
+  .filter-btn { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 16px; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s; }
+  .filter-btn:hover { border-color: var(--border-bright); color: var(--text); }
+  .filter-btn.active { background: rgba(255,255,255,0.05); border-color: var(--border-bright); color: var(--text); }
+
+  /* EVENTS GRID */
+  .events-container { max-width: 1200px; margin: 0 auto; padding: 0 48px 120px; }
+  .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .event-card { background: var(--bg2); padding: 36px 32px; transition: background 0.2s; }
+  .event-card:hover { background: var(--bg3); }
+  .event-card.hidden { display: none; }
+  .event-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
+  .event-track-badge { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; margin-bottom: 16px; }
+  .badge-explore { background: rgba(167,139,250,0.12); color: var(--g1); }
+  .badge-build   { background: rgba(52,211,153,0.1);  color: var(--g3); }
+  .badge-both    { background: rgba(96,165,250,0.1);  color: var(--g2); }
+  .event-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 12px; }
+  .event-body { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+  .event-footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .event-location { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+  .event-rsvp { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); text-decoration: none; transition: color 0.2s; }
+  .event-rsvp:hover { color: var(--g2); }
+  .empty-state { grid-column: 1/-1; padding: 80px 60px; text-align: center; background: var(--bg2); font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); line-height: 2; }
+  .empty-state p { margin-bottom: 24px; }
+
+  /* PROPOSE BANNER */
+  .propose-banner { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
+  .propose-banner-inner { border: 1px solid var(--border); border-radius: 8px; padding: 48px 56px; background: var(--bg2); display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; position: relative; overflow: hidden; }
+  .propose-banner-inner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--g1), var(--g2), var(--g3)); }
+  .propose-banner-text h3 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .propose-banner-text p { color: var(--text-mid); font-size: 0.88rem; line-height: 1.7; max-width: 480px; }
+  .btn { padding: 14px 32px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 1rem; background: linear-gradient(90deg, var(--g1), var(--g2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .footer-links { display: flex; gap: 28px; list-style: none; }
+  .footer-links a { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .page-header-left { animation: fadeUp 0.7s ease both; }
+  .propose-btn { animation: fadeUp 0.7s 0.1s ease both; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-logo">Gradient</div>
+  <div class="loading-bar"></div>
+  <div class="loading-note">Loading events</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo" id="nav-logo">Gradient</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="events.html" class="active">Events</a></li>
+    <li><a href="index.html#writing">Writing</a></li>
+    <li><a href="index.html#join" class="nav-cta">Join</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-left">
+    <p class="page-eyebrow">Gradient · Williams College</p>
+    <h1 class="page-title">All Events</h1>
+    <p class="page-desc">Every talk, workshop, and gathering — past and upcoming. Both tracks, all members.</p>
+  </div>
+  <a href="#FORM_URL" class="propose-btn" id="propose-btn-header" target="_blank">
+    <span class="propose-icon">+</span>
+    Propose an Event
+  </a>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="explore">Explore</button>
+  <button class="filter-btn" data-filter="build">Build</button>
+  <button class="filter-btn" data-filter="both">All Members</button>
+</div>
+
+<!-- EVENTS GRID -->
+<div class="events-container">
+  <div class="events-grid" id="events-grid"></div>
+</div>
+
+<!-- PROPOSE BANNER -->
+<div class="propose-banner">
+  <div class="propose-banner-inner">
+    <div class="propose-banner-text">
+      <h3>Have an idea for an event?</h3>
+      <p>Gradient is member-driven. If you have a talk, workshop, or gathering in mind — for the Explore track, the Build track, or both — we want to hear it.</p>
+    </div>
+    <a href="#FORM_URL" class="btn btn-primary" id="propose-btn-banner" target="_blank">Propose an Event</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" id="footer-logo">Gradient</div>
+  <ul class="footer-links">
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="index.html#writing">Writing</a></li>
+    <li><a href="#" id="footer-contact">Contact</a></li>
+  </ul>
+  <div class="footer-copy" id="footer-copy"></div>
+</footer>
+
+<script>
+// ── CONFIG — same sheet URLs as index.html ───────────────────────
+const SHEET_URLS = {
+  settings: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQykWIvkwmub9qCM58rS1fsqCWLLLRgKJ267BGtQM2Z3WOOue3tddFc1uyI1ILvseSzUF4w8dosZijQ/pub?gid=1354036862&single=true&output=csv",
+  events:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQykWIvkwmub9qCM58rS1fsqCWLLLRgKJ267BGtQM2Z3WOOue3tddFc1uyI1ILvseSzUF4w8dosZijQ/pub?gid=400487632&single=true&output=csv",
+};
+
+const FALLBACK = {
+  settings: {
+    club_name:"Gradient", college:"Williams College", founded_year:"2025",
+    contact_email:"gradient@williams.edu",
+  },
+  events: [
+    {date:"Mar 14, 2026 · 7:00 PM", title:"The Politics of the Chip: AI & Geopolitics",    track:"explore", description:"Panel discussion on how semiconductor supply chains, export controls, and national AI strategies are reshaping global power.", location:"Paresky 112", rsvp_link:"#"},
+    {date:"Mar 21, 2026 · 4:00 PM", title:"Project Kickoff: NLP for Archival Research",     track:"build",   description:"Building a tool to surface patterns in Williams College's historical archives using modern language models.",              location:"TCL 123 (CS Lab)", rsvp_link:"#"},
+    {date:"Apr 4, 2026 · 6:30 PM",  title:"Gradient Salon No. 1",                           track:"both",    description:"Our first cross-track gathering. Bring something you've been thinking about — a paper, a project, a question.",           location:"Log, Baxter Hall", rsvp_link:"#"},
+  ],
+};
+
+// ── CSV PARSER ───────────────────────────────────────────────────
+function parseCSVRow(line) {
+  const result = []; let cur = ""; let inQ = false;
+  for (const c of line) {
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ""; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return [];
+  const headers = parseCSVRow(lines[0]).map(h => h.trim().toLowerCase().replace(/\s+/g,"_"));
+  return lines.slice(1).map(line => {
+    const vals = parseCSVRow(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] || "").trim(); });
+    return obj;
+  }).filter(row => Object.values(row).some(v => v));
+}
+
+function toSettingsMap(rows) {
+  const map = {};
+  rows.forEach(r => { if (r.key) map[r.key.trim()] = r.value || ""; });
+  return map;
+}
+
+// ── FETCH ────────────────────────────────────────────────────────
+async function loadData() {
+  async function fetchSheet(url, parser) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const parsed = parser(await res.text());
+      if (!parsed || (Array.isArray(parsed) && !parsed.length) || (!Array.isArray(parsed) && !Object.keys(parsed).length)) return null;
+      return parsed;
+    } catch(e) { console.warn("Sheet fetch failed:", e); return null; }
+  }
+
+  const [rawSettings, rawEvents] = await Promise.all([
+    fetchSheet(SHEET_URLS.settings, t => toSettingsMap(parseCSV(t))),
+    fetchSheet(SHEET_URLS.events,   t => parseCSV(t)),
+  ]);
+
+  return {
+    settings: rawSettings || FALLBACK.settings,
+    events:   rawEvents   || FALLBACK.events,
+  };
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function renderPage(data) {
+  const S = data.settings;
+
+  // Nav / footer branding
+  const name = S.club_name || "Gradient";
+  ["nav-logo","footer-logo"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = name; });
+  document.title = `Events — ${name}`;
+
+  const yr = S.founded_year || "2025";
+  const fcopy = document.getElementById("footer-copy");
+  if (fcopy) fcopy.textContent = `${S.college || "Williams College"} · ${yr}–${String(parseInt(yr)+1).slice(2)}`;
+  const fc = document.getElementById("footer-contact");
+  if (fc && S.contact_email) fc.href = `mailto:${S.contact_email}`;
+
+  // Events grid
+  const eg = document.getElementById("events-grid");
+  if (!eg) return;
+
+  if (!data.events.length) {
+    eg.innerHTML = `<div class="empty-state"><p>No events yet — check back soon.</p></div>`;
+    return;
+  }
+
+  const trackMeta = {
+    explore: ["badge-explore", "Explore"],
+    build:   ["badge-build",   "Build"],
+    both:    ["badge-both",    "All Members"],
+  };
+
+  eg.innerHTML = data.events.map((ev, i) => {
+    const [cls, label] = trackMeta[ev.track] || trackMeta.both;
+    const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
+      ? `<a href="${ev.rsvp_link}" class="event-rsvp" target="_blank">RSVP →</a>`
+      : `<span class="event-rsvp" style="opacity:0.35">TBA</span>`;
+    return `<div class="event-card" data-track="${ev.track || 'both'}" style="animation:fadeUp 0.5s ${i * 0.05}s ease both;">
+      <div class="event-date">${ev.date}</div>
+      <span class="event-track-badge ${cls}">${label}</span>
+      <h3 class="event-title">${ev.title}</h3>
+      <p class="event-body">${ev.description}</p>
+      <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvp}</div>
+    </div>`;
+  }).join("");
+}
+
+// ── FILTERS ─────────────────────────────────────────────────────
+function initFilters() {
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const filter = btn.dataset.filter;
+      document.querySelectorAll(".event-card").forEach(card => {
+        const track = card.dataset.track;
+        const show = filter === "all" || track === filter || (filter === "both" && track === "both");
+        card.classList.toggle("hidden", !show);
+      });
+      // Show empty message if nothing visible
+      const eg = document.getElementById("events-grid");
+      const visible = eg ? [...eg.querySelectorAll(".event-card:not(.hidden)")].length : 0;
+      const existing = eg ? eg.querySelector(".filter-empty") : null;
+      if (existing) existing.remove();
+      if (visible === 0 && eg) {
+        const msg = document.createElement("div");
+        msg.className = "empty-state filter-empty";
+        msg.style.gridColumn = "1/-1";
+        msg.innerHTML = `<p>No events for this filter yet.</p>`;
+        eg.appendChild(msg);
+      }
+    });
+  });
+}
+
+// ── INIT ────────────────────────────────────────────────────────
+(async () => {
+  const data = await loadData();
+  renderPage(data);
+  initFilters();
+  const ls = document.getElementById("loading-screen");
+  if (ls) { ls.classList.add("hidden"); setTimeout(() => ls.remove(), 600); }
+})();
+</script>
+</body>
+</html>
