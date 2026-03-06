@@ -77,8 +77,11 @@
   .events-section-heading::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--border); }
   .events-section-group { margin-bottom: 56px; }
   .events-section-group:last-child { margin-bottom: 0; }
-  .past-grid .event-card { opacity: 0.65; }
-  .past-grid .event-card:hover { opacity: 1; }
+  .scroll-grid { display: flex; overflow-x: auto; gap: 16px; padding-bottom: 4px; scrollbar-width: none; }
+  .scroll-grid::-webkit-scrollbar { display: none; }
+  .scroll-grid.centered { justify-content: center; }
+  .scroll-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; }
+  .scroll-grid .event-card:hover { opacity: 1; }
 
   /* PROPOSE BANNER */
   .propose-banner { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
@@ -316,9 +319,10 @@ function renderPage(data) {
     </div>`;
   }
   if (past.length) {
+    const centeredClass = past.length < 3 ? " centered" : "";
     html += `<div class="events-section-group">
       <div class="events-section-heading">Past</div>
-      <div class="events-grid past-grid">${past.map((ev, i) => cardHtml(ev, i, false)).join("")}</div>
+      <div class="scroll-grid${centeredClass}">${past.map((ev, i) => cardHtml(ev, i, false)).join("")}</div>
     </div>`;
   }
   container.innerHTML = html;

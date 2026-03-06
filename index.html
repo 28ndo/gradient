@@ -88,7 +88,14 @@
 
   /* EVENTS */
   .events-section { border-top: 1px solid var(--border); }
-  .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 60px; }
+  .section-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 0; }
+  .section-title-row .section-title { margin-bottom: 0; }
+  .section-link { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: color 0.2s; }
+  .section-link:hover { color: var(--text); }
+  .events-grid { display: flex; overflow-x: auto; gap: 16px; margin-top: 40px; padding-bottom: 4px; scrollbar-width: none; }
+  .events-grid::-webkit-scrollbar { display: none; }
+  .events-grid.centered { justify-content: center; }
+  .events-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; }
   .event-card { background: var(--bg2); padding: 36px 32px; transition: background 0.2s; }
   .event-card:hover { background: var(--bg3); }
   .event-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
@@ -102,7 +109,7 @@
   .event-location { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
   .event-rsvp { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); text-decoration: none; transition: color 0.2s; }
   .event-rsvp:hover { color: var(--g2); }
-  .empty-state { grid-column: 1/-1; padding: 60px; text-align: center; background: var(--bg2); font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
+  .empty-state { padding: 60px; text-align: center; font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--text-dim); }
 
   /* WRITING */
   .writing-section { border-top: 1px solid var(--border); }
@@ -221,7 +228,10 @@
 <!-- EVENTS -->
 <section id="events" class="events-section">
   <div class="section-label">Upcoming Events</div>
-  <h2 class="section-title">What's coming up.</h2>
+  <div class="section-title-row">
+    <h2 class="section-title">What's coming up.</h2>
+    <a href="events.html" class="section-link">See all events →</a>
+  </div>
   <div class="events-grid" id="events-grid"></div>
 </section>
 
@@ -489,16 +499,19 @@ function renderPage(data) {
   const eg = document.getElementById("events-grid");
   if (eg) {
     if (!data.events.length) {
+      eg.classList.add("centered");
       eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
     } else {
+      if (data.events.length < 3) eg.classList.add("centered");
       const trackMeta = { explore:["badge-explore","Explore"], build:["badge-build","Build"], both:["badge-both","All Members"] };
       eg.innerHTML = data.events.map(ev => {
         const [cls, label] = trackMeta[ev.track] || trackMeta.both;
+        const displayDate = (ev.time || "").trim() ? `${(ev.date||"").trim()} · ${(ev.time||"").trim()}` : (ev.date||"").trim();
         const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
           ? `<a href="${ev.rsvp_link}" class="event-rsvp" target="_blank">RSVP →</a>`
           : `<span class="event-rsvp" style="opacity:0.35">TBA</span>`;
         return `<div class="event-card">
-          <div class="event-date">${ev.date}</div>
+          <div class="event-date">${displayDate}</div>
           <span class="event-track-badge ${cls}">${label}</span>
           <h3 class="event-title">${ev.title}</h3>
           <p class="event-body">${ev.description}</p>
