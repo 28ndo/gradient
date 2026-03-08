@@ -39,7 +39,7 @@
   .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 48px 80px; position: relative; }
   .hero-glow { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse, rgba(167,139,250,0.12) 0%, rgba(96,165,250,0.06) 40%, transparent 70%); pointer-events: none; }
   .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 28px; animation: fadeUp 0.8s ease both; }
-  .hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(4rem, 9vw, 8rem); line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 12px; background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 30%, #93c5fd 60%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradientShift 6s ease infinite, fadeUp 0.8s 0.1s ease both; }
+  .hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(2.8rem, 9vw, 8rem); line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 12px; background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 30%, #93c5fd 60%, #6ee7b7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 200%; animation: gradientShift 6s ease infinite, fadeUp 0.8s 0.1s ease both; }
   @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
   .hero-subtitle-line { font-family: 'DM Serif Display', serif; font-size: clamp(1rem, 2vw, 1.4rem); color: var(--text-dim); font-style: italic; margin-bottom: 40px; animation: fadeUp 0.8s 0.2s ease both; }
   .hero-desc { max-width: 520px; color: var(--text-mid); font-size: 1rem; line-height: 1.8; margin-bottom: 56px; animation: fadeUp 0.8s 0.3s ease both; }
@@ -96,7 +96,7 @@
   .events-grid::-webkit-scrollbar { display: none; }
   .events-grid.centered { justify-content: center; }
   .events-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; }
-  .event-card { background: var(--bg2); padding: 36px 32px; transition: background 0.2s; }
+  .event-card { background: var(--bg2); padding: 24px 28px; transition: background 0.2s; }
   .event-card:hover { background: var(--bg3); }
   .event-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
   .event-track-badge { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; display: inline-block; margin-bottom: 16px; }
@@ -159,6 +159,78 @@
   .footer-links a { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--text); }
   .footer-copy { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--text-dim); }
+
+  /* SCROLL BUTTONS */
+  .scroll-wrap { position: relative; }
+  .scroll-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(8,11,16,0.8); border: 1px solid var(--border-bright); color: var(--text-mid); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); transition: color 0.15s, background 0.15s; font-size: 0.85rem; line-height: 1; padding: 0; font-family: inherit; }
+  .scroll-btn:hover { color: var(--text); background: rgba(8,11,16,0.97); }
+  .scroll-btn.left  { left: 10px; }
+  .scroll-btn.right { right: 10px; }
+
+  /* See-all card (always in grid) */
+  .event-card-seeall { background: linear-gradient(135deg, rgba(167,139,250,0.07), rgba(96,165,250,0.04)) !important; border-color: rgba(167,139,250,0.28) !important; display: flex !important; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; color: var(--text); gap: 16px; text-align: center; }
+  .event-card-seeall:hover { background: linear-gradient(135deg, rgba(167,139,250,0.14), rgba(96,165,250,0.09)) !important; border-color: rgba(167,139,250,0.5) !important; }
+  .event-card-seeall-arrow { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--g1); line-height: 1; }
+  .event-card-seeall-label { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g1); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links li:not(:last-child) { display: none; }
+    .hero-title { font-size: clamp(1.6rem, 10vw, 2.8rem); }
+    .hero-eyebrow { font-size: 0.62rem; margin-bottom: 16px; }
+    .hero-subtitle-line { font-size: clamp(0.78rem, 2.2vw, 1rem); margin-bottom: 20px; }
+    .hero-desc { font-size: 0.85rem; margin-bottom: 32px; }
+    .hero { padding: 96px 20px 60px; }
+    .hero-branches { flex-direction: column; }
+    .branch-card { min-width: unset; width: 100%; }
+    section { padding: 64px 20px; }
+    .section-title-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .about-grid { grid-template-columns: 1fr; }
+    .about-panel { padding: 36px 24px; }
+    .about-panel:first-child { border-radius: 8px 8px 0 0; }
+    .about-panel:last-child { border-radius: 0 0 8px 8px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .section-title-row { flex-direction: row; align-items: baseline; }
+    .section-link { display: none; }
+    .writing-item { grid-template-columns: 1fr; gap: 4px; padding: 20px; }
+    .writing-author { display: none; }
+    .join-buttons { flex-direction: column; align-items: center; }
+    .btn { min-width: 220px; text-align: center; }
+    footer { flex-direction: column; gap: 20px; padding: 32px 20px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  }
+
+  /* ── VIEWPORT TOGGLE ── */
+  #viewport-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
+  #viewport-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+  #viewport-toggle.active { color: var(--g2); border-color: rgba(96,165,250,0.5); }
+  body.mobile-preview { background: #020407; }
+  body.mobile-preview #page-wrap { max-width: 390px; margin: 0 auto; background: var(--bg); overflow-x: hidden; border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); min-height: 100vh; }
+  body.mobile-preview nav { left: 50%; right: auto; transform: translateX(-50%); width: 390px; padding: 16px 20px; }
+  body.mobile-preview #debug-banner { left: 50%; right: auto; transform: translateX(-50%); width: 390px; }
+  body.mobile-preview .nav-links li:not(:last-child) { display: none; }
+  body.mobile-preview .hero-title { font-size: 2.2rem; }
+  body.mobile-preview .hero-eyebrow { font-size: 0.62rem; margin-bottom: 16px; }
+  body.mobile-preview .hero-subtitle-line { font-size: 0.88rem; margin-bottom: 20px; }
+  body.mobile-preview .hero-desc { font-size: 0.85rem; margin-bottom: 32px; }
+  body.mobile-preview .hero { padding: 96px 20px 60px; }
+  body.mobile-preview .hero-branches { flex-direction: column; }
+  body.mobile-preview .branch-card { min-width: unset; width: 100%; }
+  body.mobile-preview section { padding: 64px 20px; }
+  body.mobile-preview .section-title-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  body.mobile-preview .about-grid { grid-template-columns: 1fr; }
+  body.mobile-preview .about-panel { padding: 36px 24px; }
+  body.mobile-preview .about-panel:first-child { border-radius: 8px 8px 0 0; }
+  body.mobile-preview .about-panel:last-child { border-radius: 0 0 8px 8px; }
+  body.mobile-preview .stat-row { grid-template-columns: repeat(2, 1fr); }
+  body.mobile-preview .section-link { display: none; }
+  body.mobile-preview .writing-item { grid-template-columns: 1fr; gap: 4px; padding: 20px; }
+  body.mobile-preview .writing-author { display: none; }
+  body.mobile-preview .join-buttons { flex-direction: column; align-items: center; }
+  body.mobile-preview .btn { min-width: 220px; text-align: center; }
+  body.mobile-preview footer { flex-direction: column; gap: 20px; padding: 32px 20px; text-align: center; }
+  body.mobile-preview .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
 </style>
 </head>
 <body>
@@ -169,6 +241,8 @@
   <div class="loading-bar"></div>
   <div class="loading-note">Loading content</div>
 </div>
+
+<div id="page-wrap">
 
 <!-- NAV -->
 <nav>
@@ -232,7 +306,9 @@
     <h2 class="section-title">What's coming up.</h2>
     <a href="events.html" class="section-link">See all events →</a>
   </div>
-  <div class="events-grid" id="events-grid"></div>
+  <div class="scroll-wrap">
+    <div class="events-grid" id="events-grid"></div>
+  </div>
 </section>
 
 <!-- WRITING -->
@@ -276,6 +352,9 @@
   </ul>
   <div class="footer-copy" id="footer-copy"></div>
 </footer>
+
+</div><!-- /page-wrap -->
+<button id="viewport-toggle">Mobile</button>
 
 <script>
 // ══════════════════════════════════════════════════════════════
@@ -498,22 +577,21 @@ function renderPage(data) {
   // Events
   const eg = document.getElementById("events-grid");
   if (eg) {
-    if (!data.events.length) {
-      eg.classList.add("centered");
-      eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
+    const seeAllCard = `<a href="events.html" class="event-card event-card-seeall">
+        <span class="event-card-seeall-arrow">→</span>
+        <span class="event-card-seeall-label">See all events</span>
+      </a>`;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcoming = (data.events || [])
+      .map(ev => ({ ...ev, _ts: new Date(ev.date) }))
+      .filter(ev => ev._ts >= today)
+      .sort((a, b) => a._ts - b._ts);
+    if (!upcoming.length) {
+      eg.innerHTML = seeAllCard;
     } else {
-      const today = new Date(); today.setHours(0,0,0,0);
-      const upcoming = data.events
-        .map(ev => ({ ...ev, _ts: new Date(ev.date) }))
-        .filter(ev => ev._ts >= today)
-        .sort((a, b) => a._ts - b._ts);
-      if (!upcoming.length) {
-        eg.classList.add("centered");
-        eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
-      } else {
-      if (upcoming.length < 3) eg.classList.add("centered");
+      const shown = upcoming.slice(0, 3);
       const trackMeta = { explore:["badge-explore","Explore"], build:["badge-build","Build"], both:["badge-both","All Members"] };
-      eg.innerHTML = upcoming.map(ev => {
+      eg.innerHTML = shown.map(ev => {
         const [cls, label] = trackMeta[ev.track] || trackMeta.both;
         const displayDate = (ev.time || "").trim() ? `${(ev.date||"").trim()} · ${(ev.time||"").trim()}` : (ev.date||"").trim();
         const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
@@ -526,8 +604,7 @@ function renderPage(data) {
           <p class="event-body">${ev.description}</p>
           <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvp}</div>
         </div>`;
-      }).join("");
-      }
+      }).join("") + seeAllCard;
     }
   }
 
@@ -563,13 +640,42 @@ function renderPage(data) {
   if (fc) fc.href = `mailto:${g("contact_email",data)}`;
 }
 
+// ── SCROLL BUTTONS ───────────────────────────────────────────────
+function initScrollBtns(scrollEl) {
+  const wrap = scrollEl.closest('.scroll-wrap');
+  if (!wrap) return;
+  const L = document.createElement('button');
+  L.className = 'scroll-btn left'; L.textContent = '←';
+  const R = document.createElement('button');
+  R.className = 'scroll-btn right'; R.textContent = '→';
+  wrap.appendChild(L); wrap.appendChild(R);
+  function upd() {
+    const s = scrollEl.scrollLeft, max = scrollEl.scrollWidth - scrollEl.clientWidth;
+    L.style.display = s > 1 ? '' : 'none';
+    R.style.display = s < max - 1 ? '' : 'none';
+  }
+  scrollEl.addEventListener('scroll', upd, { passive: true });
+  L.addEventListener('click', () => scrollEl.scrollBy({ left: -320, behavior: 'smooth' }));
+  R.addEventListener('click', () => scrollEl.scrollBy({ left:  320, behavior: 'smooth' }));
+  setTimeout(upd, 100);
+}
+
 // ── INIT ─────────────────────────────────────────────────────────
 (async () => {
   const data = await loadData();
   renderPage(data);
+  const eg = document.getElementById("events-grid");
+  if (eg) initScrollBtns(eg);
   const ls = document.getElementById("loading-screen");
   if (ls) { ls.classList.add("hidden"); setTimeout(() => ls.remove(), 600); }
 })();
+
+// ── VIEWPORT TOGGLE ──────────────────────────────────────────────
+document.getElementById("viewport-toggle").addEventListener("click", function() {
+  const on = document.body.classList.toggle("mobile-preview");
+  this.textContent = on ? "Desktop" : "Mobile";
+  this.classList.toggle("active", on);
+});
 </script>
 </body>
 </html>

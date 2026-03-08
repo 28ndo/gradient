@@ -83,6 +83,13 @@
   .scroll-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; }
   .scroll-grid .event-card:hover { opacity: 1; }
 
+  /* SCROLL BUTTONS */
+  .scroll-wrap { position: relative; }
+  .scroll-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(8,11,16,0.8); border: 1px solid var(--border-bright); color: var(--text-mid); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); transition: color 0.15s, background 0.15s; font-size: 0.85rem; line-height: 1; padding: 0; font-family: inherit; }
+  .scroll-btn:hover { color: var(--text); background: rgba(8,11,16,0.97); }
+  .scroll-btn.left  { left: 10px; }
+  .scroll-btn.right { right: 10px; }
+
   /* PROPOSE BANNER */
   .propose-banner { max-width: 1200px; margin: 0 auto; padding: 0 48px 80px; }
   .propose-banner-inner { border: 1px solid var(--border); border-radius: 8px; padding: 48px 56px; background: var(--bg2); display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; position: relative; overflow: hidden; }
@@ -104,6 +111,45 @@
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .page-header-left { animation: fadeUp 0.7s ease both; }
   .propose-btn { animation: fadeUp 0.7s 0.1s ease both; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links li:not(:last-child) { display: none; }
+    .page-header { padding: 110px 20px 48px; flex-direction: column; gap: 20px; }
+    .propose-btn { width: 100%; justify-content: center; }
+    .filters-bar { padding: 0 20px 32px; flex-wrap: wrap; }
+    .events-container { padding: 0 20px 80px; }
+    .events-grid { grid-template-columns: 1fr; background: none; border: none; gap: 12px; }
+    .events-grid .event-card { border: 1px solid var(--border); border-radius: 8px; }
+    .scroll-grid .event-card { flex: 0 0 calc(100vw - 60px); }
+    .scroll-grid.centered { justify-content: flex-start; }
+    .propose-banner { padding: 0 20px 60px; }
+    .propose-banner-inner { padding: 32px 24px; flex-direction: column; }
+    footer { flex-direction: column; gap: 20px; padding: 32px 20px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  }
+
+  /* ── VIEWPORT TOGGLE ── */
+  #viewport-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
+  #viewport-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+  #viewport-toggle.active { color: var(--g2); border-color: rgba(96,165,250,0.5); }
+  body.mobile-preview { background: #020407; }
+  body.mobile-preview #page-wrap { max-width: 390px; margin: 0 auto; background: var(--bg); overflow-x: hidden; border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); min-height: 100vh; }
+  body.mobile-preview nav { left: 50%; right: auto; transform: translateX(-50%); width: 390px; padding: 16px 20px; }
+  body.mobile-preview .nav-links li:not(:last-child) { display: none; }
+  body.mobile-preview .page-header { padding: 110px 20px 48px; flex-direction: column; gap: 20px; }
+  body.mobile-preview .propose-btn { width: 100%; justify-content: center; }
+  body.mobile-preview .filters-bar { padding: 0 20px 32px; flex-wrap: wrap; }
+  body.mobile-preview .events-container { padding: 0 20px 80px; }
+  body.mobile-preview .events-grid { grid-template-columns: 1fr; background: none; border: none; gap: 12px; }
+  body.mobile-preview .events-grid .event-card { border: 1px solid var(--border); border-radius: 8px; }
+  body.mobile-preview .scroll-grid .event-card { flex: 0 0 300px; }
+  body.mobile-preview .scroll-grid.centered { justify-content: flex-start; }
+  body.mobile-preview .propose-banner { padding: 0 20px 60px; }
+  body.mobile-preview .propose-banner-inner { padding: 32px 24px; flex-direction: column; }
+  body.mobile-preview footer { flex-direction: column; gap: 20px; padding: 32px 20px; text-align: center; }
+  body.mobile-preview .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
 </style>
 </head>
 <body>
@@ -114,6 +160,8 @@
   <div class="loading-bar"></div>
   <div class="loading-note">Loading events</div>
 </div>
+
+<div id="page-wrap">
 
 <!-- NAV -->
 <nav>
@@ -174,6 +222,9 @@
   </ul>
   <div class="footer-copy" id="footer-copy"></div>
 </footer>
+
+</div><!-- /page-wrap -->
+<button id="viewport-toggle">Mobile</button>
 
 <script>
 // ── CONFIG — same sheet URLs as index.html ───────────────────────
@@ -322,10 +373,14 @@ function renderPage(data) {
     const centeredClass = past.length < 3 ? " centered" : "";
     html += `<div class="events-section-group">
       <div class="events-section-heading">Past</div>
-      <div class="scroll-grid${centeredClass}">${past.map((ev, i) => cardHtml(ev, i, false)).join("")}</div>
+      <div class="scroll-wrap"><div class="scroll-grid${centeredClass}">${past.map((ev, i) => cardHtml(ev, i, false)).join("")}</div></div>
     </div>`;
   }
   container.innerHTML = html;
+  document.querySelectorAll('.scroll-wrap').forEach(wrap => {
+    const el = wrap.querySelector('.scroll-grid');
+    if (el) initScrollBtns(el);
+  });
 }
 
 // ── FILTERS ─────────────────────────────────────────────────────
@@ -361,6 +416,26 @@ function initFilters() {
   });
 }
 
+// ── SCROLL BUTTONS ───────────────────────────────────────────────
+function initScrollBtns(scrollEl) {
+  const wrap = scrollEl.closest('.scroll-wrap');
+  if (!wrap) return;
+  const L = document.createElement('button');
+  L.className = 'scroll-btn left'; L.textContent = '←';
+  const R = document.createElement('button');
+  R.className = 'scroll-btn right'; R.textContent = '→';
+  wrap.appendChild(L); wrap.appendChild(R);
+  function upd() {
+    const s = scrollEl.scrollLeft, max = scrollEl.scrollWidth - scrollEl.clientWidth;
+    L.style.display = s > 1 ? '' : 'none';
+    R.style.display = s < max - 1 ? '' : 'none';
+  }
+  scrollEl.addEventListener('scroll', upd, { passive: true });
+  L.addEventListener('click', () => scrollEl.scrollBy({ left: -320, behavior: 'smooth' }));
+  R.addEventListener('click', () => scrollEl.scrollBy({ left:  320, behavior: 'smooth' }));
+  setTimeout(upd, 100);
+}
+
 // ── INIT ────────────────────────────────────────────────────────
 (async () => {
   const data = await loadData();
@@ -369,6 +444,13 @@ function initFilters() {
   const ls = document.getElementById("loading-screen");
   if (ls) { ls.classList.add("hidden"); setTimeout(() => ls.remove(), 600); }
 })();
+
+// ── VIEWPORT TOGGLE ──────────────────────────────────────────────
+document.getElementById("viewport-toggle").addEventListener("click", function() {
+  const on = document.body.classList.toggle("mobile-preview");
+  this.textContent = on ? "Desktop" : "Mobile";
+  this.classList.toggle("active", on);
+});
 </script>
 </body>
 </html>
