@@ -92,10 +92,10 @@
   .section-title-row .section-title { margin-bottom: 0; }
   .section-link { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: color 0.2s; }
   .section-link:hover { color: var(--text); }
-  .events-grid { display: flex; overflow-x: auto; gap: 16px; margin-top: 40px; padding-bottom: 4px; scrollbar-width: none; }
+  .events-grid { display: flex; overflow-x: auto; gap: 16px; margin-top: 40px; padding-bottom: 4px; scrollbar-width: none; scroll-snap-type: x mandatory; }
   .events-grid::-webkit-scrollbar { display: none; }
   .events-grid.centered { justify-content: center; }
-  .events-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; }
+  .events-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; scroll-snap-align: start; }
   .event-card { background: var(--bg2); padding: 24px 28px; transition: background 0.2s; }
   .event-card:hover { background: var(--bg3); }
   .event-date { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
@@ -177,10 +177,11 @@
   @media (max-width: 768px) {
     nav { padding: 16px 20px; }
     .nav-links li:not(:last-child) { display: none; }
-    .hero-title { font-size: clamp(1.6rem, 10vw, 2.8rem); }
+    .hero-title { font-size: clamp(2.8rem, 14vw, 8rem); }
     .hero-eyebrow { font-size: 0.62rem; margin-bottom: 16px; }
-    .hero-subtitle-line { font-size: clamp(0.78rem, 2.2vw, 1rem); margin-bottom: 20px; }
-    .hero-desc { font-size: 0.85rem; margin-bottom: 32px; }
+    .hero-subtitle-line { font-size: clamp(0.9rem, 3.2vw, 1.2rem); margin-bottom: 20px; }
+    .hero-desc { font-size: 0.88rem; margin-bottom: 32px; }
+    .events-grid .event-card { scroll-snap-align: center; }
     .hero { padding: 96px 20px 60px; }
     .hero-branches { flex-direction: column; }
     .branch-card { min-width: unset; width: 100%; }
@@ -202,7 +203,7 @@
   }
 
   /* ── VIEWPORT TOGGLE ── */
-  #viewport-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
+  #viewport-toggle { display: none; position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
   #viewport-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
   #viewport-toggle.active { color: var(--g2); border-color: rgba(96,165,250,0.5); }
   body.mobile-preview { background: #020407; }
@@ -210,10 +211,11 @@
   body.mobile-preview nav { left: 50%; right: auto; transform: translateX(-50%); width: 390px; padding: 16px 20px; }
   body.mobile-preview #debug-banner { left: 50%; right: auto; transform: translateX(-50%); width: 390px; }
   body.mobile-preview .nav-links li:not(:last-child) { display: none; }
-  body.mobile-preview .hero-title { font-size: 2.2rem; }
+  body.mobile-preview .hero-title { font-size: 3.5rem; }
   body.mobile-preview .hero-eyebrow { font-size: 0.62rem; margin-bottom: 16px; }
-  body.mobile-preview .hero-subtitle-line { font-size: 0.88rem; margin-bottom: 20px; }
-  body.mobile-preview .hero-desc { font-size: 0.85rem; margin-bottom: 32px; }
+  body.mobile-preview .hero-subtitle-line { font-size: 1rem; margin-bottom: 20px; }
+  body.mobile-preview .hero-desc { font-size: 0.88rem; margin-bottom: 32px; }
+  body.mobile-preview .events-grid .event-card { scroll-snap-align: center; }
   body.mobile-preview .hero { padding: 96px 20px 60px; }
   body.mobile-preview .hero-branches { flex-direction: column; }
   body.mobile-preview .branch-card { min-width: unset; width: 100%; }
@@ -649,14 +651,19 @@ function initScrollBtns(scrollEl) {
   const R = document.createElement('button');
   R.className = 'scroll-btn right'; R.textContent = '→';
   wrap.appendChild(L); wrap.appendChild(R);
+  function cardStep() {
+    const card = scrollEl.querySelector('.event-card');
+    return card ? card.offsetWidth + 16 : 320;
+  }
   function upd() {
-    const s = scrollEl.scrollLeft, max = scrollEl.scrollWidth - scrollEl.clientWidth;
-    L.style.display = s > 1 ? '' : 'none';
-    R.style.display = s < max - 1 ? '' : 'none';
+    const s = Math.round(scrollEl.scrollLeft);
+    const max = Math.round(scrollEl.scrollWidth - scrollEl.clientWidth);
+    L.style.display = s > 0 ? '' : 'none';
+    R.style.display = s < max ? '' : 'none';
   }
   scrollEl.addEventListener('scroll', upd, { passive: true });
-  L.addEventListener('click', () => scrollEl.scrollBy({ left: -320, behavior: 'smooth' }));
-  R.addEventListener('click', () => scrollEl.scrollBy({ left:  320, behavior: 'smooth' }));
+  L.addEventListener('click', () => scrollEl.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
+  R.addEventListener('click', () => scrollEl.scrollBy({ left:  cardStep(), behavior: 'smooth' }));
   setTimeout(upd, 100);
 }
 

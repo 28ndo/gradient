@@ -77,10 +77,10 @@
   .events-section-heading::after { content: ''; flex: 1; max-width: 80px; height: 1px; background: var(--border); }
   .events-section-group { margin-bottom: 56px; }
   .events-section-group:last-child { margin-bottom: 0; }
-  .scroll-grid { display: flex; overflow-x: auto; gap: 16px; padding-bottom: 4px; scrollbar-width: none; }
+  .scroll-grid { display: flex; overflow-x: auto; gap: 16px; padding-bottom: 4px; scrollbar-width: none; scroll-snap-type: x mandatory; }
   .scroll-grid::-webkit-scrollbar { display: none; }
   .scroll-grid.centered { justify-content: center; }
-  .scroll-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; }
+  .scroll-grid .event-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 260px; border: 1px solid var(--border); border-radius: 8px; opacity: 0.65; scroll-snap-align: start; }
   .scroll-grid .event-card:hover { opacity: 1; }
 
   /* SCROLL BUTTONS */
@@ -122,7 +122,7 @@
     .events-container { padding: 0 20px 80px; }
     .events-grid { grid-template-columns: 1fr; background: none; border: none; gap: 12px; }
     .events-grid .event-card { border: 1px solid var(--border); border-radius: 8px; }
-    .scroll-grid .event-card { flex: 0 0 calc(100vw - 60px); }
+    .scroll-grid .event-card { flex: 0 0 calc(100vw - 60px); scroll-snap-align: center; }
     .scroll-grid.centered { justify-content: flex-start; }
     .propose-banner { padding: 0 20px 60px; }
     .propose-banner-inner { padding: 32px 24px; flex-direction: column; }
@@ -131,7 +131,7 @@
   }
 
   /* ── VIEWPORT TOGGLE ── */
-  #viewport-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
+  #viewport-toggle { display: none; position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: rgba(8,11,16,0.92); border: 1px solid var(--border-bright); color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border-radius: 4px; cursor: pointer; backdrop-filter: blur(16px); transition: all 0.2s; }
   #viewport-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
   #viewport-toggle.active { color: var(--g2); border-color: rgba(96,165,250,0.5); }
   body.mobile-preview { background: #020407; }
@@ -144,7 +144,7 @@
   body.mobile-preview .events-container { padding: 0 20px 80px; }
   body.mobile-preview .events-grid { grid-template-columns: 1fr; background: none; border: none; gap: 12px; }
   body.mobile-preview .events-grid .event-card { border: 1px solid var(--border); border-radius: 8px; }
-  body.mobile-preview .scroll-grid .event-card { flex: 0 0 300px; }
+  body.mobile-preview .scroll-grid .event-card { flex: 0 0 300px; scroll-snap-align: center; }
   body.mobile-preview .scroll-grid.centered { justify-content: flex-start; }
   body.mobile-preview .propose-banner { padding: 0 20px 60px; }
   body.mobile-preview .propose-banner-inner { padding: 32px 24px; flex-direction: column; }
@@ -425,14 +425,19 @@ function initScrollBtns(scrollEl) {
   const R = document.createElement('button');
   R.className = 'scroll-btn right'; R.textContent = '→';
   wrap.appendChild(L); wrap.appendChild(R);
+  function cardStep() {
+    const card = scrollEl.querySelector('.event-card');
+    return card ? card.offsetWidth + 16 : 320;
+  }
   function upd() {
-    const s = scrollEl.scrollLeft, max = scrollEl.scrollWidth - scrollEl.clientWidth;
-    L.style.display = s > 1 ? '' : 'none';
-    R.style.display = s < max - 1 ? '' : 'none';
+    const s = Math.round(scrollEl.scrollLeft);
+    const max = Math.round(scrollEl.scrollWidth - scrollEl.clientWidth);
+    L.style.display = s > 0 ? '' : 'none';
+    R.style.display = s < max ? '' : 'none';
   }
   scrollEl.addEventListener('scroll', upd, { passive: true });
-  L.addEventListener('click', () => scrollEl.scrollBy({ left: -320, behavior: 'smooth' }));
-  R.addEventListener('click', () => scrollEl.scrollBy({ left:  320, behavior: 'smooth' }));
+  L.addEventListener('click', () => scrollEl.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
+  R.addEventListener('click', () => scrollEl.scrollBy({ left:  cardStep(), behavior: 'smooth' }));
   setTimeout(upd, 100);
 }
 
