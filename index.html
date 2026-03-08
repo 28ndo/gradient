@@ -502,9 +502,18 @@ function renderPage(data) {
       eg.classList.add("centered");
       eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
     } else {
-      if (data.events.length < 3) eg.classList.add("centered");
+      const today = new Date(); today.setHours(0,0,0,0);
+      const upcoming = data.events
+        .map(ev => ({ ...ev, _ts: new Date(ev.date) }))
+        .filter(ev => ev._ts >= today)
+        .sort((a, b) => a._ts - b._ts);
+      if (!upcoming.length) {
+        eg.classList.add("centered");
+        eg.innerHTML = `<div class="empty-state">No upcoming events — check back soon.</div>`;
+      } else {
+      if (upcoming.length < 3) eg.classList.add("centered");
       const trackMeta = { explore:["badge-explore","Explore"], build:["badge-build","Build"], both:["badge-both","All Members"] };
-      eg.innerHTML = data.events.map(ev => {
+      eg.innerHTML = upcoming.map(ev => {
         const [cls, label] = trackMeta[ev.track] || trackMeta.both;
         const displayDate = (ev.time || "").trim() ? `${(ev.date||"").trim()} · ${(ev.time||"").trim()}` : (ev.date||"").trim();
         const rsvp = ev.rsvp_link && ev.rsvp_link !== "#"
@@ -518,6 +527,7 @@ function renderPage(data) {
           <div class="event-footer"><span class="event-location">${ev.location}</span>${rsvp}</div>
         </div>`;
       }).join("");
+      }
     }
   }
 
